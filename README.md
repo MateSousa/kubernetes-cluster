@@ -9,3 +9,5 @@ Inspired by [msfidelis](https://github.com/msfidelis/kubernetes-kind-setup), I d
 ## Deleting the cluster
 
 `make delete`
+
+## Creating argocd

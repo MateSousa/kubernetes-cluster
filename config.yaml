@@ -54,8 +54,8 @@ nodes:
         listenAddress: "0.0.0.0"
         protocol: TCP
   - role: worker
-  - role: worker
-  - role: worker
+  # - role: worker
+  # - role: worker
 networking:
   # disableDefaultCNI: true # Comentar se não usar Cilium
   # kubeProxyMode: none # Comentar se não usar Cilium

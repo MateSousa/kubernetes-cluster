@@ -54,6 +54,8 @@ nodes:
         listenAddress: "0.0.0.0"
         protocol: TCP
   - role: worker
+  - role: worker
+  - role: worker
   # - role: worker
   # - role: worker
 networking:

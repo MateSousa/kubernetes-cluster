@@ -16,7 +16,7 @@ delete-argocd:
 	helm uninstall argocd -n argocd --delete-namespace
 
 create-metrics-server:
-	helm install metrics-server metrics-server -n kube-system -f charts/metrics-server/values.yaml
+	helm install metrics-server metrics-server/metrics-server -n kube-system -f charts/metrics-server/values.yaml
 
 upgrade-metrics-server:
 	helm upgrade metrics-server metrics-server -n kube-system -f charts/metrics-server/values.yaml
@@ -44,3 +44,9 @@ create-odigos:
 
 delete-odigos:
 	kubectl delete -f labs/odigos/values.yaml
+
+create-prometheus-adapter:
+	helm install prometheus-adapter prometheus-community/prometheus-adapter -n custom-metrics --create-namespace -f charts/prometheus-adapter/values.yaml
+
+delete-prometheus-adapter:
+	helm uninstall prometheus-adapter -n custom-metrics --delete-namespace

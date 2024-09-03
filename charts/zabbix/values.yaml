@@ -37,7 +37,8 @@ postgresAccess:
   #   * host
   #   * port
   #   * user
-  #   * password
+  #   * password  
+  
   #   * database
   # -- Whether to use the unified PostgreSQL access secret
   useUnifiedSecret: true

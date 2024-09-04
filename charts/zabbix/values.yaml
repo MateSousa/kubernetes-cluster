@@ -60,7 +60,7 @@ postgresAccess:
   # -- Key of the secret used for Postgres Password, requires POSTGRES_PASSWORD_SECRET, defaults to password
   #passwordSecretKey: "password"
   # -- Password of database - ignored if passwordSecret is set
-  password: "zabbix"
+  password: "Zabbix@1234-"
   # -- Name of database
   database: "zabbix"
 

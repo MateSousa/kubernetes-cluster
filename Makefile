@@ -50,3 +50,10 @@ create-prometheus-adapter:
 
 delete-prometheus-adapter:
 	helm uninstall prometheus-adapter -n custom-metrics --delete-namespace
+
+create-zabbix:
+	helm install my-zabbix-test zabbix-community/zabbix --version 5.0.1 -n zabbix --create-namespace -f charts/zabbix/values.yaml
+
+delete-zabbix:
+	helm uninstall my-zabbix-test -n zabbix && kubectl delete namespace zabbix
+

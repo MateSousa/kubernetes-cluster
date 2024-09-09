@@ -223,14 +223,3 @@ make delete-harbor
 ```
 
 This removes Harbor and deletes the `harbor` namespace.
-
-## Conclusion
-
-This Makefile simplifies the deployment, management, and deletion of various Kubernetes tools and services in a local Kind cluster environment. Feel free to modify the values and configurations in the charts for your specific use cases.
-"""
-
-file_path = "/mnt/data/README.mdx"
-with open(file_path, "w") as file:
-    file.write(mdx_content)
-
-file_path

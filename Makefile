@@ -50,3 +50,12 @@ create-prometheus-adapter:
 
 delete-prometheus-adapter:
 	helm uninstall prometheus-adapter -n custom-metrics --delete-namespace
+
+create-jaeger-stack:
+	helm install jaeger jaegertracing/jaeger -n observability --create-namespace -f charts/jaeger/values.yaml
+
+upgrade-jaeger-stack:
+	helm upgrade jaeger jaegertracing/jaeger -n observability -f charts/jaeger/values.yaml
+
+delete-jaeger-stack:
+	helm uninstall jaeger -n observability

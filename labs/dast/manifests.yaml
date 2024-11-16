@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: myrelease-dast-report-handler-sa
+  namespace: dast
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: myrelease-dast-report-handler-role
+  namespace: dast
+rules:
+  - apiGroups: [""]
+    resources:
+      - "pods"
+      - "pods/exec"
+      - "services"
+      - "persistentvolumeclaims"
+      - "configmaps"
+    verbs:
+      - "create"
+      - "get"
+      - "list"
+      - "watch"
+      - "update"
+      - "delete"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: myrelease-dast-report-handler-rolebinding
+  namespace: dast
+subjects:
+  - kind: ServiceAccount
+    name: myrelease-dast-report-handler-sa
+    namespace: dast
+roleRef:
+  kind: Role
+  name: myrelease-dast-report-handler-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: myrelease-dast
+  namespace: dast
+  labels:
+    app: myrelease-dast
+spec:
+  schedule: "0 15 * * 1-5"
+  suspend: true
+  startingDeadlineSeconds: 3600
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            app: myrelease-dast
+        spec:
+          serviceAccountName: myrelease-dast-report-handler-sa
+          volumes:
+            - name: zap-workspace
+              emptyDir: {}
+          containers:
+            - name: myrelease-dast
+              image: ghcr.io/zaproxy/zaproxy:latest
+              imagePullPolicy: IfNotPresent
+              args:
+                - "zap-full-scan.py"
+                - "-t"
+                - "https://google-gruyere.appspot.com/444018856279915969053224901234783622198/#"
+                - "-d"
+                - "-I"
+                - "-r"
+                - "zap_report.html"
+              volumeMounts:
+                - name: zap-workspace
+                  mountPath: /zap/wrk
+            - name: dast-report-handler
+              image: matesousa/dast-poc:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: KUBERNETES_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: WEBHOOK_URL
+                  value: "https://apis.elven.works/6a4ab7fd-72f5-4bbd-854c-5558cdbc07d1/incidents/v1/custom/d8cd5b3f-be63-4fae-a4bd-acdbe4250b2e?token=cAevbx7rwDSBMGSHuFNQn44b57d93DEC"
+                - name: TARGET_NAME
+                  value: "myrelease"
+                - name: REPORT_FILE_PATH
+                  value: "/zap/wrk/zap_report.html"
+                - name: POD_IP
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: status.podIP
+                - name: ENVIRONMENT
+                  value: "st"
+                - name: STORAGE_CLASS_NAME
+                  value: "standard"
+                - name: LEVEL_VULNERABILITIES
+                  value: "high"
+                - name: KAFKA_AUTH
+                  value: "true"
+                - name: KAFKA_BROKERS
+                  value: "kafka.kafka.svc.cluster.local:9092"
+                - name: KAFKA_MECHANISM
+                  value: "PLAIN"
+                - name: KAFKA_PASSWORD
+                  value: "admin-secret"
+                - name: KAFKA_SASL
+                  value: "true"
+                - name: KAFKA_TSL
+                  value: "false"
+                - name: KAFKA_USER
+                  value: "admin"
+              volumeMounts:
+                - name: zap-workspace
+                  mountPath: /zap/wrk
+              ports:
+                - containerPort: 8080
+                  name: http
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 100Mi
+                requests:
+                  cpu: 50m
+                  memory: 50Mi
+          restartPolicy: Never
+  concurrencyPolicy: Forbid
